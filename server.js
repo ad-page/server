@@ -7,6 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 connectToDB();
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 app.options("*");
@@ -21,3 +22,5 @@ app.use(errorHandler);
 app.listen(process.env.PORT, () =>
   console.log(`Server is running on port ${process.env.PORT}`)
 );
+
+
