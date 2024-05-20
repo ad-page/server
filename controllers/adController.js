@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Ad = require("../models/adModel");
-const Category = require("../models/categoryModel"); // Import Category model
+const Category = require("../models/categoryModel"); 
 
 // Controller function to create a new ad
 // Route: POST /api/ads
