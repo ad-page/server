@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 
 // Create a new category
 // Route: POST /api/categories
-// Access: Public
+// Access: Private
 const createCategory = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
@@ -37,4 +37,19 @@ const getAllCategories = asyncHandler(async (req, res) => {
   res.json(categories);
 });
 
-module.exports = { createCategory, getAllCategories };
+// Delete category by ID
+// Route: DELETE /api/categories/:id
+// Access: Private (assuming only admin can delete a category)
+const deleteCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findById(req.params.id);
+
+  if (category) {
+    await category.remove();
+    res.json({ message: "Category removed" });
+  } else {
+    res.status(404);
+    throw new Error("Category not found");
+  }
+});
+
+module.exports = { createCategory, getAllCategories, deleteCategory };

@@ -1,12 +1,13 @@
 const asyncHandler = require("express-async-handler");
 const Ad = require("../models/adModel");
-const Category = require("../models/categoryModel"); 
+const Category = require("../models/categoryModel");
+const Comment = require("../models/commentModel");
 
 // Controller function to create a new ad
 // Route: POST /api/ads
 // Access: Private
 const createAd = asyncHandler(async (req, res) => {
-  const { name, category, amount, description, images } = req.body;
+  const { name, category, price, description, images } = req.body;
 
   // Find the category by name
   const categoryObj = await Category.findOne({ name: category });
@@ -21,7 +22,7 @@ const createAd = asyncHandler(async (req, res) => {
   const ad = await Ad.create({
     name,
     category: categoryObj._id,
-    amount,
+    price,
     description,
     user: req.user._id,
     images
@@ -34,7 +35,10 @@ const createAd = asyncHandler(async (req, res) => {
 // Route: DELETE /api/ads/:id
 // Access: Private
 const deleteAd = asyncHandler(async (req, res) => {
-  const ad = await Ad.findById(req.params.id);
+  const adId = req.params.id;
+
+  // Find the ad by ID
+  const ad = await Ad.findById(adId);
 
   if (!ad) {
     res.status(404);
@@ -47,15 +51,25 @@ const deleteAd = asyncHandler(async (req, res) => {
     throw new Error("Unauthorized access");
   }
 
-  await ad.remove();
-  res.json({ message: "Ad removed" });
+  try {
+    // Delete comments associated with the ad
+    await Comment.deleteMany({ ad: adId });
+
+    // Delete the ad
+    await Ad.findByIdAndDelete(adId);
+
+    res.json({ message: "Ad removed successfully" });
+  } catch (error) {
+    console.error("Error while deleting ad:", error);
+    res.status(500).json({ message: "Error while deleting ad", error: error.message });
+  }
 });
 
 // Controller function to update an ad
 // Route: PUT /api/ads/:id
 // Access: Private
 const updateAd = asyncHandler(async (req, res) => {
-  const { name, category, amount, description, images } = req.body;
+  const { name, category, price, description, images } = req.body;
 
   const ad = await Ad.findById(req.params.id);
 
@@ -72,7 +86,7 @@ const updateAd = asyncHandler(async (req, res) => {
 
   ad.name = name;
   ad.category = category;
-  ad.amount = amount;
+  ad.price = price;
   ad.description = description;
   ad.images = images;
 
@@ -84,7 +98,17 @@ const updateAd = asyncHandler(async (req, res) => {
 // Route: GET /api/ads
 // Access: Public
 const getAllAds = asyncHandler(async (req, res) => {
-  const ads = await Ad.find().populate("category").populate("user")
+  const ads = await Ad.find()
+    .populate("category")
+    .populate("user")
+    .populate({
+      path: "comments",
+      populate: {
+        path: "user",
+        model: "User"
+      }
+    });
+
   res.json(ads);
 });
 
