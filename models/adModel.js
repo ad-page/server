@@ -11,7 +11,7 @@ const adSchema = new mongoose.Schema(
       ref: 'Category',
       required: true,
     },
-    amount: {
+    price: {
       type: Number,
       required: true,
     },
@@ -25,6 +25,10 @@ const adSchema = new mongoose.Schema(
       required: true,
     },
     images: [{ type: String, required: true }],
+    comments: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment'
+    }],
   },
   {
     timestamps: true,

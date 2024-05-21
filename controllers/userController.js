@@ -2,11 +2,12 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
+const Ad = require("../models/adModel");
+const Comment = require("../models/commentModel");
 
-// register user
-// @Rout POST /api/users
+// Register user
+// @route POST /api/users
 // @access PUBLIC
-
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -52,9 +53,8 @@ const generateToken = (id) => {
 };
 
 // Login user
-// @route /api/users/login
+// @route POST /api/users/login
 // @access PUBLIC
-
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -73,4 +73,52 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser };
+// Get user by ID
+// @route GET /api/users/:id
+// @access PRIVATE
+const getUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+// Get all users
+// @route GET /api/users
+// @access PRIVATE
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
+
+// Delete user by ID
+// @route DELETE /api/users/:id
+// @access PRIVATE (Assuming only admin can delete a user)
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  try {
+    // Delete all ads and comments associated with the user
+    await Ad.deleteMany({ user: user._id });
+    await Comment.deleteMany({ user: user._id });
+
+    // Delete the user
+    await User.deleteOne({ _id: user._id });
+
+    res.json({ message: "User removed" });
+  } catch (error) {
+    console.error("Error while deleting user:", error);
+    res.status(500).json({ message: "Error while deleting user", error: error.message });
+  }
+});
+
+module.exports = { registerUser, loginUser, getUser, getAllUsers, deleteUser };
