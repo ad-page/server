@@ -44,7 +44,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
   const category = await Category.findById(req.params.id);
 
   if (category) {
-    await category.remove();
+    await category.deleteOne({_id: req.params.id});
     res.json({ message: "Category removed" });
   } else {
     res.status(404);
