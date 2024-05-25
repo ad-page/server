@@ -51,6 +51,32 @@ Key: authorization
 Value: Bearer + Token (gaunamas prisijungiant)
 Kam leidžiama ši operacija: admin
 
+Categories (kategorijos)
+Sukurti kategorija:
+Metodas: POST
+Adresas: http://localhost:5000/api/categories
+Headers:
+Key: authorization
+Value: Bearer + jwtToken (gaunamas prisijungiant)
+Body: raw, JSON { "name": "..."}
+Kam leidžiama ši operacija: adminams
+
+Gauti visas kategorijas:
+Metodas: GET
+Adresas: http://localhost:5000/api/categories
+Headers:
+Key: authorization
+Value: Bearer + jwtToken (gaunamas prisijungiant)
+Kam leidžiama ši operacija: visiems
+
+Ištrinti kategorija:
+Metodas: DELETE
+Adresas: http://localhost:5000/api/categories/:category_id
+Headers:
+Key: authorization
+Value: Bearer + jwtToken (gaunamas prisijungiant)
+Kam leidžiama ši operacija: adminams
+
 ADS (skelbimai):
 Sukurti skelbima vartotojui:
 Metodas: POST
