@@ -5,9 +5,10 @@ const {
   deleteAd,
   updateAd,
   getAllAds,
-  getUserAds
+  getUserAds,
 } = require("../controllers/adController");
 const { protect } = require("../middleware/authMiddleware");
+const protectAdmin = require("../middleware/adminAuthMiddleware");
 
 // Route for creating a new ad
 router.post("/", protect, createAd);

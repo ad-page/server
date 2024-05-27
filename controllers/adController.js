@@ -25,7 +25,7 @@ const createAd = asyncHandler(async (req, res) => {
     price,
     description,
     user: req.user._id,
-    images
+    images,
   });
 
   res.status(201).json(ad);
@@ -46,10 +46,10 @@ const deleteAd = asyncHandler(async (req, res) => {
   }
 
   // Check if the user owns the ad
-  if (ad.user.toString() !== req.user._id.toString()) {
-    res.status(403);
-    throw new Error("Unauthorized access");
-  }
+  // if (ad.user.toString() !== req.user._id.toString()) {
+  //   res.status(403);
+  //   throw new Error("Unauthorized access");
+  // }
 
   try {
     // Delete comments associated with the ad
@@ -61,7 +61,9 @@ const deleteAd = asyncHandler(async (req, res) => {
     res.json({ message: "Ad removed successfully" });
   } catch (error) {
     console.error("Error while deleting ad:", error);
-    res.status(500).json({ message: "Error while deleting ad", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error while deleting ad", error: error.message });
   }
 });
 
@@ -79,10 +81,10 @@ const updateAd = asyncHandler(async (req, res) => {
   }
 
   // Check if the user owns the ad
-  if (ad.user.toString() !== req.user._id.toString()) {
-    res.status(403);
-    throw new Error("Unauthorized access");
-  }
+  // if (ad.user.toString() !== req.user._id.toString()) {
+  //   res.status(403);
+  //   throw new Error("Unauthorized access");
+  // }
 
   ad.name = name;
   ad.category = category;
@@ -105,8 +107,8 @@ const getAllAds = asyncHandler(async (req, res) => {
       path: "comments",
       populate: {
         path: "user",
-        model: "User"
-      }
+        model: "User",
+      },
     });
 
   res.json(ads);
@@ -116,7 +118,7 @@ const getAllAds = asyncHandler(async (req, res) => {
 // Route: GET /api/ads/my
 // Access: Private
 const getUserAds = asyncHandler(async (req, res) => {
-  const ads = await Ad.find({ user: req.user._id }).populate("category")
+  const ads = await Ad.find({ user: req.user._id }).populate("category");
   res.json(ads);
 });
 
