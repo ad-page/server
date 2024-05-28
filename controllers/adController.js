@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Ad = require("../models/adModel");
 const Category = require("../models/categoryModel");
 const Comment = require("../models/commentModel");
+const User = require("../models/userModel");
 
 // Controller function to create a new ad
 // Route: POST /api/ads
@@ -114,12 +115,52 @@ const getAllAds = asyncHandler(async (req, res) => {
   res.json(ads);
 });
 
+// Controller function to like an ad
+// Route: POST /api/ads/:id/like
+// Access: Private
+const likeAd = asyncHandler(async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+    if (!ad) {
+      res.status(404).send("Ad not found");
+      return;
+    }
+
+    if (!ad.likes.includes(req.user._id)) {
+      ad.likes.push(req.user._id);
+      await ad.save();
+
+      const user = await User.findById(req.user._id);
+      user.likes.push(ad._id);
+      await user.save();
+
+      res.status(200).send("Ad liked");
+    } else {
+      res.status(400).send("You have already liked this ad");
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 // Controller function to get ads created by the authenticated user
 // Route: GET /api/ads/my
 // Access: Private
 const getUserAds = asyncHandler(async (req, res) => {
-  const ads = await Ad.find({ user: req.user._id }).populate("category");
-  res.json(ads);
+  try {
+    // Find ads created by the authenticated user
+    const ads = await Ad.find({ user: req.user._id }).populate("category");
+    res.status(200).json(ads);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
-module.exports = { createAd, deleteAd, updateAd, getAllAds, getUserAds };
+module.exports = {
+  createAd,
+  deleteAd,
+  updateAd,
+  getAllAds,
+  getUserAds,
+  likeAd,
+};

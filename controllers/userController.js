@@ -118,8 +118,32 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.json({ message: "User removed" });
   } catch (error) {
     console.error("Error while deleting user:", error);
-    res.status(500).json({ message: "Error while deleting user", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error while deleting user", error: error.message });
   }
 });
 
-module.exports = { registerUser, loginUser, getUser, getAllUsers, deleteUser };
+// Route to get all ads liked by the authenticated user
+// @route GET /api/users/:userId/likes
+// @access Private
+const getUserLikes = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate("likes");
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).json(user.likes);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUser,
+  getAllUsers,
+  deleteUser,
+  getUserLikes,
+};

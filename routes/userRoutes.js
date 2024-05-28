@@ -6,6 +6,7 @@ const {
   getUser,
   getAllUsers,
   deleteUser,
+  getUserLikes,
 } = require("../controllers/userController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -16,5 +17,6 @@ router.post("/login", loginUser);
 router.get("/:id", protect, getUser);
 router.get("/", protectAdmin, getAllUsers);
 router.delete("/:id", protectAdmin, deleteUser);
+router.get("/:id/likes", protect, getUserLikes);
 
 module.exports = router;

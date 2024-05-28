@@ -21,13 +21,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "simple",
     },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ad",
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre("remove", async function(next) {
+userSchema.pre("remove", async function (next) {
   await Ad.deleteMany({ user: this._id });
   await Comment.deleteMany({ user: this._id });
   next();
