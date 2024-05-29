@@ -7,6 +7,7 @@ const {
   getAllAds,
   getUserAds,
   likeAd,
+  getLikedAds,
 } = require("../controllers/adController");
 const { protect } = require("../middleware/authMiddleware");
 const protectAdmin = require("../middleware/adminAuthMiddleware");
@@ -28,5 +29,8 @@ router.get("/my", protect, getUserAds);
 
 // Route to like an ad
 router.post("/:id/like", protect, likeAd);
+
+// Route to get ads liked by the authenticated user
+router.get("/liked", protect, getLikedAds);
 
 module.exports = router;

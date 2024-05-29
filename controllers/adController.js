@@ -126,18 +126,47 @@ const likeAd = asyncHandler(async (req, res) => {
       return;
     }
 
-    if (!ad.likes.includes(req.user._id)) {
-      ad.likes.push(req.user._id);
+    const userId = req.user._id;
+
+    // Check if the user has already liked the ad
+    const isLiked = ad.likes.includes(userId);
+
+    if (!isLiked) {
+      // If the user has not liked the ad, add like
+      ad.likes.push(userId);
       await ad.save();
 
-      const user = await User.findById(req.user._id);
+      const user = await User.findById(userId);
       user.likes.push(ad._id);
       await user.save();
 
       res.status(200).send("Ad liked");
     } else {
-      res.status(400).send("You have already liked this ad");
+      // If the user has already liked the ad, remove like
+      const index = ad.likes.indexOf(userId);
+      ad.likes.splice(index, 1);
+      await ad.save();
+
+      const user = await User.findById(userId);
+      const likeIndex = user.likes.indexOf(ad._id);
+      user.likes.splice(likeIndex, 1);
+      await user.save();
+
+      res.status(200).send("Ad unliked");
     }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// Controller function to get liked ads of a user
+// Route: GET /api/users/:id/likedAds
+// Access: Private
+const getLikedAds = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const ads = await Ad.find({ likes: userId });
+    res.json(ads);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -163,4 +192,5 @@ module.exports = {
   getAllAds,
   getUserAds,
   likeAd,
+  getLikedAds,
 };
