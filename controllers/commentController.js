@@ -1,16 +1,16 @@
-const asyncHandler = require("express-async-handler");
-const Comment = require("../models/commentModel");
-const Ad = require("../models/adModel");
+const asyncHandler = require('express-async-handler');
+const Comment = require('../models/commentModel');
+const Ad = require('../models/adModel');
 
 // Controller function to create a new comment
 // Route: POST /api/comments
 // Access: Private
 const createComment = asyncHandler(async (req, res) => {
-  const { comment, ad: adId } = req.body;
+  const { comment, adId } = req.body;
 
   // Create a new comment
   const newComment = await Comment.create({
-    comment,
+    comment: comment,
     user: req.user._id,
     ad: adId,
   });
@@ -19,12 +19,23 @@ const createComment = asyncHandler(async (req, res) => {
   const ad = await Ad.findById(adId);
   if (!ad) {
     res.status(404);
-    throw new Error("Ad not found");
+    throw new Error('Ad not found');
   }
   ad.comments.push(newComment._id);
   await ad.save();
 
   res.status(201).json(newComment);
+});
+
+// get all comments by Ad id
+const getCommentsByAdId = asyncHandler(async (req, res) => {
+  try {
+    const ad = req.body.ad;
+    const comments = await Comment.find({ ad: ad });
+    res.json(comments);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 // Controller function to delete a comment
@@ -35,17 +46,17 @@ const deleteComment = asyncHandler(async (req, res) => {
 
   if (!comment) {
     res.status(404);
-    throw new Error("Comment not found");
+    throw new Error('Comment not found');
   }
 
   // Check if the user owns the comment
   if (comment.user.toString() !== req.user._id.toString()) {
     res.status(403);
-    throw new Error("Unauthorized access");
+    throw new Error('Unauthorized access');
   }
 
   await Comment.deleteOne({ _id: comment._id }); // Use deleteOne to remove the comment
-  res.json({ message: "Comment removed" });
+  res.json({ message: 'Comment removed' });
 });
 
-module.exports = { createComment, deleteComment };
+module.exports = { createComment, deleteComment, getCommentsByAdId };
