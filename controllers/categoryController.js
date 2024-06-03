@@ -1,4 +1,5 @@
 const Category = require('../models/categoryModel');
+const Ad = require('../models/adModel'); 
 const asyncHandler = require('express-async-handler');
 
 // Create a new category
@@ -49,12 +50,13 @@ const deleteCategory = asyncHandler(async (req, res) => {
       return;
     }
 
-    await Category.deleteOne({ _id: req.params.id });
+    // Delete ads with the deleted category
+    await Ad.deleteMany({ category: req.params.id });
 
-    if (category) {
-      await category.deleteOne({ _id: req.params.id });
-      res.json({ message: 'Category removed' });
-    }
+    // Delete the category itself
+    await category.deleteOne({ _id: req.params.id });
+
+    res.json({ message: 'Category and related ads removed' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
