@@ -30,9 +30,14 @@ const createComment = asyncHandler(async (req, res) => {
 // get all comments by Ad id
 const getCommentsByAdId = asyncHandler(async (req, res) => {
   try {
-    const ad = req.body.ad;
-    const comments = await Comment.find({ ad: ad });
-    res.json(comments);
+    const adId = req.query.adId;
+    if (!adId) {
+      return res.status(400).send('Ad ID is required');
+    }
+    const comments = await Comment.find({ ad: adId });
+    res
+      .status(200)
+      .json({ message: 'comments fetched successfully', data: comments });
   } catch (error) {
     res.status(500).send(error.message);
   }
