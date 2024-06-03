@@ -1,8 +1,8 @@
-const asyncHandler = require("express-async-handler");
-const Ad = require("../models/adModel");
-const Category = require("../models/categoryModel");
-const Comment = require("../models/commentModel");
-const User = require("../models/userModel");
+const asyncHandler = require('express-async-handler');
+const Ad = require('../models/adModel');
+const Category = require('../models/categoryModel');
+const Comment = require('../models/commentModel');
+const User = require('../models/userModel');
 
 // Controller function to create a new ad
 // Route: POST /api/ads
@@ -16,7 +16,7 @@ const createAd = asyncHandler(async (req, res) => {
   // Check if category exists
   if (!categoryObj) {
     res.status(400);
-    throw new Error("Category not found");
+    throw new Error('Category not found');
   }
 
   // Create a new ad
@@ -43,7 +43,7 @@ const deleteAd = asyncHandler(async (req, res) => {
 
   if (!ad) {
     res.status(404);
-    throw new Error("Ad not found");
+    throw new Error('Ad not found');
   }
 
   // Check if the user owns the ad
@@ -59,12 +59,12 @@ const deleteAd = asyncHandler(async (req, res) => {
     // Delete the ad
     await Ad.findByIdAndDelete(adId);
 
-    res.json({ message: "Ad removed successfully" });
+    res.json({ message: 'Ad removed successfully' });
   } catch (error) {
-    console.error("Error while deleting ad:", error);
+    console.error('Error while deleting ad:', error);
     res
       .status(500)
-      .json({ message: "Error while deleting ad", error: error.message });
+      .json({ message: 'Error while deleting ad', error: error.message });
   }
 });
 
@@ -78,7 +78,7 @@ const updateAd = asyncHandler(async (req, res) => {
 
   if (!ad) {
     res.status(404);
-    throw new Error("Ad not found");
+    throw new Error('Ad not found');
   }
 
   // Check if the user owns the ad
@@ -102,13 +102,13 @@ const updateAd = asyncHandler(async (req, res) => {
 // Access: Public
 const getAllAds = asyncHandler(async (req, res) => {
   const ads = await Ad.find()
-    .populate("category")
-    .populate("user")
+    .populate('category')
+    .populate('user')
     .populate({
-      path: "comments",
+      path: 'comments',
       populate: {
-        path: "user",
-        model: "User",
+        path: 'user',
+        model: 'User',
       },
     });
 
@@ -122,7 +122,7 @@ const likeAd = asyncHandler(async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id);
     if (!ad) {
-      res.status(404).send("Ad not found");
+      res.status(404).send('Ad not found');
       return;
     }
 
@@ -140,7 +140,7 @@ const likeAd = asyncHandler(async (req, res) => {
       user.likes.push(ad._id);
       await user.save();
 
-      res.status(200).send("Ad liked");
+      res.status(200).send('Ad liked');
     } else {
       // If the user has already liked the ad, remove like
       const index = ad.likes.indexOf(userId);
@@ -152,7 +152,7 @@ const likeAd = asyncHandler(async (req, res) => {
       user.likes.splice(likeIndex, 1);
       await user.save();
 
-      res.status(200).send("Ad unliked");
+      res.status(200).send('Ad unliked');
     }
   } catch (error) {
     res.status(500).send(error.message);
@@ -178,7 +178,7 @@ const getLikedAds = asyncHandler(async (req, res) => {
 const getUserAds = asyncHandler(async (req, res) => {
   try {
     // Find ads created by the authenticated user
-    const ads = await Ad.find({ user: req.user._id }).populate("category");
+    const ads = await Ad.find({ user: req.user._id }).populate('category');
     res.status(200).json(ads);
   } catch (error) {
     res.status(500).send(error.message);
