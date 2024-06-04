@@ -34,7 +34,10 @@ const getCommentsByAdId = asyncHandler(async (req, res) => {
     if (!adId) {
       return res.status(400).send('Ad ID is required');
     }
-    const comments = await Comment.find({ ad: adId });
+    const comments = await Comment.find({ ad: adId }).populate(
+      'user',
+      'username'
+    );
     res
       .status(200)
       .json({ message: 'comments fetched successfully', data: comments });
